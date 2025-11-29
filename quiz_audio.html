@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quiz Audio Russe</title>
+
+<style>
+    body {
+        font-family: "Nunito", Arial, sans-serif;
+        margin: 0;
+        background: #f0f9ff;
+        display: flex;
+        justify-content: center;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 480px;
+        padding: 20px;
+    }
+
+    /* TOP BAR */
+    .topbar {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 15px;
+        position: relative;
+    }
+
+    .topbar h1 {
+        font-size: 1.9em;
+        font-weight: 800;
+        margin: 0;
+        padding: 0;
+        text-align: center;
+    }
+
+    .homeBtn {
+        position: absolute;
+        right: 0;
+        background: white;
+        border-radius: 50%;
+        padding: 10px 13px;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+        font-size: 1.4em;
+        text-decoration: none;
+        color: #1e3a8a;
+        border: 2px solid #e0e7ff;
+        transition: 0.2s;
+    }
+
+    .homeBtn:hover { transform: scale(1.08); }
+    .homeBtn:active { transform: scale(0.92); }
+
+    @media(max-width:480px){
+        .topbar h1 { font-size:1.6em; }
+        .homeBtn { font-size:1.3em; padding:10px 12px; }
+    }
+
+    /* PLAY BUTTON */
+    .playBtn {
+        width: 90px;
+        height: 90px;
+        margin: 20px auto;
+        background: white;
+        border-radius: 50%;
+        border: 3px solid #3b82f6;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 3em;
+        color: #3b82f6;
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+        transition: 0.2s;
+        user-select: none;
+    }
+
+    .playBtn:hover { transform: scale(1.07); }
+
+    /* UI */
+    #progress {
+        height: 12px;
+        width: 100%;
+        background: #dceeff;
+        border-radius: 20px;
+        margin: 20px 0;
+        overflow: hidden;
+    }
+    #progressBar { height: 100%; width: 0; background: #4ade80; transition: 0.4s; }
+
+    #score {
+        text-align:center;
+        font-size:1.3em; 
+        font-weight:700; 
+        margin-bottom:20px;
+        color:#2563eb;
+    }
+
+    .choice {
+        padding: 18px;
+        background: white;
+        border-radius: 14px;
+        margin: 12px 0;
+        cursor: pointer;
+        border: 2px solid #e5e7eb;
+        transition: 0.25s;
+        font-size: 1.2em;
+        text-align:center;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+    }
+
+    .choice:hover { background:#eef6ff; }
+    .correct { background:#bbf7d0 !important; border-color:#22c55e !important; transform:scale(1.03); }
+    .wrong { background:#fecaca !important; border-color:#ef4444 !important; transform:scale(0.97); }
+
+    #result {
+        font-size:1.4em;
+        text-align:center;
+        margin-top:20px;
+        min-height:40px;
+        font-weight:700;
+    }
+
+    #next {
+        margin-top:25px;
+        padding:16px;
+        font-size:1.3em;
+        cursor:pointer;
+        width:100%;
+        border-radius:12px;
+        background:#3b82f6;
+        color:white;
+        border:none;
+        display:none;
+        font-weight:700;
+    }
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<div class="topbar">
+    <h1>🎧 Quiz Audio</h1>
+    <a href="index.html" class="homeBtn">🏠</a>
+</div>
+
+<div id="progress"><div id="progressBar"></div></div>
+
+<div id="score">Score : 0</div>
+
+<!-- New PLAY BUTTON -->
+<div class="playBtn" onclick="playCurrent()">🔊</div>
+
+<!-- Hidden audio -->
+<audio id="audio"></audio>
+
+<div id="choices"></div>
+<div id="result"></div>
+
+<button id="next" onclick="startQuiz()">⏭️ Suivant</button>
+
+<script>
+// ===== LISTE DES MP3 =====
+const verbs = {
+    "dessiner.mp3":"dessiner",
+    "courir.mp3":"courir",
+    "parler.mp3":"parler / discuter",
+    "promener.mp3":"se promener / marcher",
+    "faire.mp3":"faire / fabriquer / réaliser",
+    "penser.mp3":"penser / réfléchir",
+    "petitdejeuner.mp3":"prendre le petit-déjeuner",
+    "jouer.mp3":"jouer",
+    "etudier.mp3":"étudier / apprendre",
+    "fumer.mp3":"fumer",
+    "dejeuner.mp3":"déjeuner / manger le midi",
+    "repondre.mp3":"répondre / réagir",
+    "sereposer.mp3":"se reposer / faire une pause / être en vacances",
+    "nager.mp3":"nager",
+    "souvenir.mp3":"se souvenir / se rappeler",
+    "comprendre.mp3":"comprendre / saisir / interpréter",
+    "travailler.mp3":"travailler",
+    "ecouter.mp3":"écouter / prêter attention",
+    "regarder.mp3":"regarder / observer",
+    "demander.mp3":"demander / poser une question",
+    "diner.mp3":"dîner / manger le soir",
+    "savoirfaire.mp3":"savoir-faire (compétence)",
+    "lire.mp3":"lire",
+    "savoir_connaitre.mp3":"savoir / connaître"
+};
+
+const files = Object.keys(verbs);
+let currentFile = "";
+let score = 0, totalQuestions = 20, index = 0;
+
+// Progress bar
+function updateProgress() {
+    document.getElementById("progressBar").style.width =
+        (index / totalQuestions * 100) + "%";
+}
+
+// Play button handler
+function playCurrent() {
+    if(!currentFile) return;
+    const audio = document.getElementById("audio");
+    audio.src = currentFile;
+    audio.play();
+}
+
+function startQuiz() {
+    if(index >= totalQuestions){
+        document.getElementById("choices").innerHTML = "";
+        document.getElementById("result").innerHTML = "🎉 Terminé !<br>Score : "+score;
+        document.getElementById("next").style.display="none";
+        return;
+    }
+
+    index++;
+    updateProgress();
+
+    document.getElementById("result").innerHTML = "";
+    document.getElementById("next").style.display = "none";
+
+    currentFile = files[Math.floor(Math.random()*files.length)];
+    const correct = verbs[currentFile];
+
+    // Generate choices
+    let opts = new Set([correct]);
+    while(opts.size < 4){
+        opts.add(verbs[files[Math.floor(Math.random()*files.length)]]);
+    }
+
+    const final = [...opts].sort(()=>Math.random()-0.5);
+
+    let html = "";
+    final.forEach(txt=>{
+        html += `<div class="choice" onclick="checkAnswer(this,'${txt}','${correct}')">${txt}</div>`;
+    });
+
+    document.getElementById("choices").innerHTML = html;
+}
+
+function checkAnswer(el, chosen, correct) {
+    document.querySelectorAll('.choice').forEach(x=>x.style.pointerEvents="none");
+
+    if(chosen === correct){
+        el.classList.add("correct");
+        score++;
+        document.getElementById("score").innerHTML = "Score : "+score;
+        document.getElementById("result").innerHTML = "🟢 Correct !";
+    } else {
+        el.classList.add("wrong");
+        document.getElementById("result").innerHTML = "❌ Faux !<br>✔️ "+correct;
+    }
+
+    document.getElementById("next").style.display = "block";
+}
+
+startQuiz();
+</script>
+
+</div>
+</body>
+</html>

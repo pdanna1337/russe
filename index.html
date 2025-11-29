@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Menu – Quiz Russe</title>
+
+<style>
+    body {
+        font-family: "Nunito", Arial, sans-serif;
+        margin: 0;
+        background: #f0f9ff;
+        display: flex;
+        justify-content: center;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 480px;
+        padding: 20px;
+        margin-top: 40px;
+        text-align: center;
+    }
+
+    h1 {
+        font-size: 2.2em;
+        font-weight: 800;
+        color: #1e3a8a;
+        margin-bottom: 30px;
+    }
+
+    .menu-btn {
+        background: white;
+        border-radius: 16px;
+        padding: 22px;
+        margin: 20px 0;
+        border: 3px solid #e0e7ff;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        font-size: 1.5em;
+        font-weight: 700;
+        color: #1e293b;
+        cursor: pointer;
+        transition: 0.25s;
+    }
+
+    .menu-btn:hover {
+        background: #eef6ff;
+        transform: scale(1.03);
+    }
+
+    .menu-btn:active {
+        transform: scale(0.97);
+    }
+
+    .emoji {
+        font-size: 1.6em;
+        margin-bottom: 10px;
+        display: block;
+    }
+
+</style>
+</head>
+
+<body>
+<div class="container">
+
+    <h1>🇷🇺 Quiz Russe</h1>
+
+    <div class="menu-btn" onclick="location.href='quiz_audio.html'">
+        <span class="emoji">🎧</span>
+        Quiz Audio<br>
+        <small style="font-size:0.7em;color:#475569;">
+            Écouter → choisir le verbe
+        </small>
+    </div>
+
+    <div class="menu-btn" onclick="location.href='quiz_cyrillique.html'">
+        <span class="emoji">📖</span>
+        Quiz Cyrillique<br>
+        <small style="font-size:0.7em;color:#475569;">
+            Français → Russe (écrit + phonétique)
+        </small>
+    </div>
+
+</div>
+</body>
+</html>
