@@ -9,7 +9,7 @@
     body {
         font-family: "Nunito", Arial, sans-serif;
         margin: 0;
-        background: #f0f9ff;
+        background: #eef7ff;
         display: flex;
         justify-content: center;
     }
@@ -21,7 +21,6 @@
         padding-bottom: 140px;
     }
 
-    /* TOP BAR */
     .topbar {
         display: flex;
         justify-content: center;
@@ -39,32 +38,44 @@
     .homeBtn {
         position: absolute;
         right: 0;
+        top: 0;
         background: white;
         border-radius: 50%;
         padding: 10px 13px;
-        box-shadow: 0 3px 8px rgba(0,0,0,0.12);
         font-size: 1.4em;
-        text-decoration: none;
         color: #1e3a8a;
-        border: 2px solid #e0e7ff;
-        transition: 0.2s;
+        text-decoration: none;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     }
 
-    .homeBtn:hover { transform: scale(1.08); }
-    .homeBtn:active { transform: scale(0.92); }
-
-    @media(max-width:480px){
-        .topbar h1 { font-size:1.6em; }
-        .homeBtn { font-size:1.3em; padding:10px 12px; }
+    #progress {
+        height: 12px;
+        background: #cde4ff;
+        border-radius: 20px;
+        margin: 20px 0;
+        overflow:hidden;
     }
 
-    /* UI */
-    #progress { height:12px; background:#dceeff; border-radius:20px; margin:20px 0; overflow:hidden; }
-    #progressBar { height:100%; width:0; background:#4ade80; transition:0.4s; }
+    #progressBar {
+        height:100%; width:0;
+        background:#4ade80;
+        transition:0.4s;
+    }
 
-    #score { text-align:center; font-size:1.3em; margin-bottom:20px; color:#2563eb; font-weight:700; }
+    #score {
+        text-align:center;
+        font-size:1.3em;
+        margin-bottom:20px;
+        font-weight:700;
+        color:#2563eb;
+    }
 
-    #question { text-align:center; font-size:1.5em; margin-bottom:25px; font-weight:700; }
+    #question {
+        text-align:center;
+        font-size:1.5em;
+        margin-bottom:25px;
+        font-weight:700;
+    }
 
     .choice {
         padding:18px;
@@ -73,24 +84,37 @@
         margin:12px 0;
         cursor:pointer;
         border:2px solid #e5e7eb;
-        box-shadow:0 3px 8px rgba(0,0,0,0.08);
         display:flex;
         justify-content:space-between;
         align-items:center;
-        transition:0.25s;
+        box-shadow:0 3px 8px rgba(0,0,0,0.08);
     }
 
-    .choice:hover { background:#eef6ff; }
-    .correct { background:#bbf7d0 !important; border-color:#22c55e !important; transform:scale(1.03); }
-    .wrong { background:#fecaca !important; border-color:#ef4444 !important; transform:scale(0.97); }
+    .correct { background:#bbf7d0 !important; border-color:#22c55e !important; }
+    .wrong { background:#fecaca !important; border-color:#ef4444 !important; }
 
-    .left { text-align:left; }
     .ru { font-size:1.4em; font-weight:700; }
     .ph { font-size:1em; color:#555; }
 
-    .soundBtn { font-size:1.6em; cursor:pointer; padding:6px; color:#3b82f6; }
+    .soundBtn {
+        font-size:1.7em;
+        padding:6px;
+        cursor:pointer;
+        color:#3b82f6;
+    }
 
-    #result { text-align:center; font-size:1.4em; margin-top:20px; min-height:40px; font-weight:700; }
+    #result {
+        text-align:center;
+        font-size:1.4em;
+        margin-top:20px;
+        font-weight:700;
+        min-height:40px;
+    }
+
+    #errorPadding {
+        height:120px;
+        display:none;
+    }
 
     #playCorrect {
         display:none;
@@ -98,15 +122,14 @@
         width:100%;
         padding:14px;
         font-size:1.2em;
-        border-radius:12px;
         background:#10b981;
         color:white;
         border:none;
+        border-radius:12px;
         font-weight:700;
         cursor:pointer;
     }
 
-    /* FIXED NEXT BUTTON */
     #next {
         position: fixed;
         bottom: 20px;
@@ -114,7 +137,6 @@
         transform: translateX(-50%);
         max-width: 420px;
         width: calc(100% - 40px);
-
         padding: 16px;
         font-size: 1.3em;
         border-radius: 14px;
@@ -122,7 +144,6 @@
         color: white;
         border: none;
         font-weight: 700;
-
         display: none;
         box-shadow: 0 6px 16px rgba(0,0,0,0.2);
         z-index: 999;
@@ -146,6 +167,7 @@
 <div id="choices"></div>
 
 <div id="result"></div>
+<div id="errorPadding"></div>
 
 <button id="playCorrect">▶️ Écouter la bonne réponse</button>
 <button id="next" onclick="startQuiz()">⏭️ Suivant</button>
@@ -153,7 +175,6 @@
 <audio id="audioPlayer"></audio>
 
 <script>
-// FR -> RUSSE
 const verbs = {
     "dessiner":"рисовать",
     "courir":"бегать",
@@ -181,7 +202,6 @@ const verbs = {
     "savoir / connaître":"знать"
 };
 
-// Phonétique
 const ruPhon = {
     "рисовать":"risavat’",
     "бегать":"byéguet’",
@@ -209,7 +229,6 @@ const ruPhon = {
     "знать":"znat’"
 };
 
-// RUSSE -> MP3
 const ruMp3 = {
     "рисовать":"dessiner.mp3",
     "бегать":"courir.mp3",
@@ -238,10 +257,9 @@ const ruMp3 = {
 };
 
 const frList = Object.keys(verbs);
-
 let score=0, total=20, step=0;
 
-function updateProg(){
+function updateProgress(){
     document.getElementById("progressBar").style.width =
         (step/total*100)+"%";
 }
@@ -253,18 +271,19 @@ function playSound(ru){
 }
 
 function startQuiz(){
+    document.getElementById("errorPadding").style.display="none";
     document.getElementById("playCorrect").style.display="none";
 
     if(step>=total){
         document.getElementById("question").innerHTML="🎉 Terminé !";
         document.getElementById("choices").innerHTML="";
-        document.getElementById("result").innerHTML="Score final : "+score;
+        document.getElementById("result").innerHTML="Score : "+score;
         document.getElementById("next").style.display="none";
         return;
     }
 
     step++;
-    updateProg();
+    updateProgress();
 
     document.getElementById("result").innerHTML="";
     document.getElementById("next").style.display="none";
@@ -285,7 +304,7 @@ function startQuiz(){
     final.forEach(ru=>{
         html += `
         <div class="choice" onclick="checkAnswer(this,'${ru}','${correct}')">
-            <div class="left">
+            <div>
                 <div class="ru">${ru}</div>
                 <div class="ph">${ruPhon[ru]}</div>
             </div>
@@ -306,12 +325,16 @@ function checkAnswer(el,choice,correct){
         score++;
         document.getElementById("score").innerHTML="Score : "+score;
         document.getElementById("result").innerHTML="🟢 Correct !";
+        document.getElementById("errorPadding").style.display="none";
     } else {
         el.classList.add("wrong");
+
         document.getElementById("result").innerHTML =
-            "❌ Mauvais<br>✔️ "+correct+"<br><small>"+ruPhon[correct]+"</small>";
+            "❌ Mauvais<br>✔️ " + correct + "<br><small>" + ruPhon[correct] + "</small>";
+
         document.getElementById("playCorrect").style.display="block";
         document.getElementById("playCorrect").onclick = ()=>playSound(correct);
+        document.getElementById("errorPadding").style.display="block";
     }
 
     document.getElementById("next").style.display="block";

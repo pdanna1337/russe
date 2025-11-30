@@ -18,7 +18,7 @@
         width: 100%;
         max-width: 480px;
         padding: 20px;
-        padding-bottom: 140px; /* espace pour le bouton suivant */
+        padding-bottom: 140px; /* espace pour ne jamais scroller */
     }
 
     /* TOP BAR */
@@ -34,7 +34,6 @@
         font-size: 1.9em;
         font-weight: 800;
         margin: 0;
-        padding: 0;
     }
 
     .homeBtn {
@@ -48,18 +47,8 @@
         text-decoration: none;
         color: #1e3a8a;
         border: 2px solid #e0e7ff;
-        transition: 0.2s;
     }
 
-    .homeBtn:hover { transform: scale(1.08); }
-    .homeBtn:active { transform: scale(0.92); }
-
-    @media(max-width:480px){
-        .topbar h1 { font-size:1.6em; }
-        .homeBtn { font-size:1.3em; padding:10px 12px; }
-    }
-
-    /* PLAY BUTTON */
     .playBtn {
         width: 100px;
         height: 100px;
@@ -74,21 +63,23 @@
         color: #3b82f6;
         cursor: pointer;
         box-shadow: 0 4px 10px rgba(0,0,0,0.12);
-        transition: 0.2s;
         user-select: none;
     }
-    .playBtn:hover { transform: scale(1.07); }
 
-    /* PROGRESS BAR */
     #progress {
         height: 12px;
-        width: 100%;
         background: #dceeff;
         border-radius: 20px;
         margin: 20px 0;
         overflow: hidden;
     }
-    #progressBar { height: 100%; width: 0; background: #4ade80; transition: 0.4s; }
+
+    #progressBar {
+        height: 100%;
+        width: 0;
+        background: #4ade80;
+        transition: 0.4s;
+    }
 
     #score {
         text-align:center;
@@ -105,25 +96,29 @@
         margin: 12px 0;
         cursor: pointer;
         border: 2px solid #e5e7eb;
-        transition: 0.25s;
         font-size: 1.2em;
         text-align:center;
         box-shadow: 0 3px 8px rgba(0,0,0,0.08);
     }
 
-    .choice:hover { background:#eef6ff; }
-    .correct { background:#bbf7d0 !important; border-color:#22c55e !important; transform:scale(1.03); }
-    .wrong { background:#fecaca !important; border-color:#ef4444 !important; transform:scale(0.97); }
+    .correct { background:#bbf7d0 !important; border-color:#22c55e !important; }
+    .wrong { background:#fecaca !important; border-color:#ef4444 !important; }
 
     #result {
         font-size:1.4em;
         text-align:center;
         margin-top:20px;
-        min-height:40px;
         font-weight:700;
+        min-height:40px;
     }
 
-    /* FIXED NEXT BUTTON */
+    /* espace qui se montre uniquement quand c'est faux */
+    #errorPadding {
+        height: 120px;
+        display: none;
+    }
+
+    /* NEXT BUTTON fixed */
     #next {
         position: fixed;
         bottom: 20px;
@@ -131,7 +126,6 @@
         transform: translateX(-50%);
         max-width: 420px;
         width: calc(100% - 40px);
-
         padding: 16px;
         font-size: 1.3em;
         border-radius: 14px;
@@ -139,7 +133,6 @@
         color: white;
         border: none;
         font-weight: 700;
-
         display: none;
         box-shadow: 0 6px 16px rgba(0,0,0,0.2);
         z-index: 999;
@@ -164,12 +157,14 @@
 <audio id="audio"></audio>
 
 <div id="choices"></div>
+
 <div id="result"></div>
+<div id="errorPadding"></div>
 
 <button id="next" onclick="startQuiz()">⏭️ Suivant</button>
 
 <script>
-// LISTE DES MP3
+// --- DATA ---
 const verbs = {
     "dessiner.mp3":"dessiner",
     "courir.mp3":"courir",
@@ -199,11 +194,12 @@ const verbs = {
 
 const files = Object.keys(verbs);
 let currentFile = "";
-let score = 0, totalQuestions = 20, index = 0;
+let score = 0, total = 20, index = 0;
 
+// --- FUNCTIONS ---
 function updateProgress() {
     document.getElementById("progressBar").style.width =
-        (index / totalQuestions * 100) + "%";
+        (index / total * 100) + "%";
 }
 
 function playCurrent() {
@@ -214,7 +210,9 @@ function playCurrent() {
 }
 
 function startQuiz() {
-    if(index >= totalQuestions){
+    document.getElementById("errorPadding").style.display="none";
+
+    if(index >= total){
         document.getElementById("choices").innerHTML = "";
         document.getElementById("result").innerHTML = "🎉 Terminé !<br>Score : "+score;
         document.getElementById("next").style.display="none";
@@ -225,7 +223,7 @@ function startQuiz() {
     updateProgress();
 
     document.getElementById("result").innerHTML = "";
-    document.getElementById("next").style.display = "none";
+    document.getElementById("next").style.display="none";
 
     currentFile = files[Math.floor(Math.random()*files.length)];
     const correct = verbs[currentFile];
@@ -253,9 +251,11 @@ function checkAnswer(el, chosen, correct) {
         score++;
         document.getElementById("score").innerHTML = "Score : "+score;
         document.getElementById("result").innerHTML = "🟢 Correct !";
+        document.getElementById("errorPadding").style.display="none";
     } else {
         el.classList.add("wrong");
         document.getElementById("result").innerHTML = "❌ Faux !<br>✔️ "+correct;
+        document.getElementById("errorPadding").style.display="block";
     }
 
     document.getElementById("next").style.display = "block";
