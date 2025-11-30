@@ -18,6 +18,7 @@
         width: 100%;
         max-width: 480px;
         padding: 20px;
+        padding-bottom: 140px;
     }
 
     /* TOP BAR */
@@ -57,11 +58,11 @@
         .homeBtn { font-size:1.3em; padding:10px 12px; }
     }
 
-    /* UI ELEMENTS */
-    #progress { height:12px; width:100%; background:#dceeff; border-radius:20px; overflow:hidden; margin:20px 0; }
+    /* UI */
+    #progress { height:12px; background:#dceeff; border-radius:20px; margin:20px 0; overflow:hidden; }
     #progressBar { height:100%; width:0; background:#4ade80; transition:0.4s; }
 
-    #score { text-align:center; font-size:1.3em; margin-bottom:20px; font-weight:700; color:#2563eb; }
+    #score { text-align:center; font-size:1.3em; margin-bottom:20px; color:#2563eb; font-weight:700; }
 
     #question { text-align:center; font-size:1.5em; margin-bottom:25px; font-weight:700; }
 
@@ -80,7 +81,6 @@
     }
 
     .choice:hover { background:#eef6ff; }
-
     .correct { background:#bbf7d0 !important; border-color:#22c55e !important; transform:scale(1.03); }
     .wrong { background:#fecaca !important; border-color:#ef4444 !important; transform:scale(0.97); }
 
@@ -88,13 +88,7 @@
     .ru { font-size:1.4em; font-weight:700; }
     .ph { font-size:1em; color:#555; }
 
-    .soundBtn {
-        font-size:1.6em;
-        cursor:pointer;
-        padding:6px;
-        color:#3b82f6;
-        user-select:none;
-    }
+    .soundBtn { font-size:1.6em; cursor:pointer; padding:6px; color:#3b82f6; }
 
     #result { text-align:center; font-size:1.4em; margin-top:20px; min-height:40px; font-weight:700; }
 
@@ -112,18 +106,26 @@
         cursor:pointer;
     }
 
+    /* FIXED NEXT BUTTON */
     #next {
-        margin-top:20px;
-        padding:16px;
-        font-size:1.3em;
-        cursor:pointer;
-        width:100%;
-        border-radius:12px;
-        background:#3b82f6;
-        color:white;
-        border:none;
-        font-weight:700;
-        display:none;
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        max-width: 420px;
+        width: calc(100% - 40px);
+
+        padding: 16px;
+        font-size: 1.3em;
+        border-radius: 14px;
+        background: #3b82f6;
+        color: white;
+        border: none;
+        font-weight: 700;
+
+        display: none;
+        box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+        z-index: 999;
     }
 </style>
 </head>
@@ -131,7 +133,6 @@
 <body>
 <div class="container">
 
-<!-- TOP BAR -->
 <div class="topbar">
     <h1>📖 Quiz Cyrillique</h1>
     <a href="index.html" class="homeBtn">🏠</a>
@@ -152,7 +153,7 @@
 <audio id="audioPlayer"></audio>
 
 <script>
-// FR → RUSSE
+// FR -> RUSSE
 const verbs = {
     "dessiner":"рисовать",
     "courir":"бегать",
@@ -168,7 +169,7 @@ const verbs = {
     "répondre / réagir":"отвечать",
     "se reposer / faire une pause / être en vacances":"отдыхать",
     "nager":"плавать",
-    "se souvenir / se rappeler":"pomnit’",
+    "se souvenir / se rappeler":"помнить",
     "comprendre / saisir / interpréter":"понимать",
     "travailler":"работать",
     "écouter / prêter attention":"слушать",
@@ -194,21 +195,21 @@ const ruPhon = {
     "курить":"kourit’",
     "обедать":"abédat’",
     "отвечать":"atvetchat’",
-    "отдыхать":"addyrat’",
+    "отдыхать":"addykhat’",
     "плавать":"plavat’",
     "помнить":"pomnit’",
     "понимать":"panimat’",
-    "работать":"rabodat’",
+    "работать":"rabotat’",
     "слушать":"slouchat’",
     "смотреть":"smatrét’",
     "спрашивать":"sprachevat’",
     "ужинать":"oujinat’",
-    "уметь":"oumiet’",
+    "уметь":"oumyét’",
     "читать":"tchitat’",
     "знать":"znat’"
 };
 
-// Russe → MP3
+// RUSSE -> MP3
 const ruMp3 = {
     "рисовать":"dessiner.mp3",
     "бегать":"courir.mp3",
@@ -238,51 +239,50 @@ const ruMp3 = {
 
 const frList = Object.keys(verbs);
 
-let score = 0;
-let total = 20;
-let step = 0;
+let score=0, total=20, step=0;
 
-function updateProg() {
-    document.getElementById("progressBar").style.width = (step / total * 100) + "%";
+function updateProg(){
+    document.getElementById("progressBar").style.width =
+        (step/total*100)+"%";
 }
 
-function playSound(ru) {
-    const audio = document.getElementById("audioPlayer");
-    audio.src = ruMp3[ru];
-    audio.play();
+function playSound(ru){
+    const a=document.getElementById("audioPlayer");
+    a.src = ruMp3[ru];
+    a.play();
 }
 
-function startQuiz() {
-    document.getElementById("playCorrect").style.display = "none";
+function startQuiz(){
+    document.getElementById("playCorrect").style.display="none";
 
-    if (step >= total) {
-        document.getElementById("question").innerHTML = "🎉 Terminé !";
-        document.getElementById("choices").innerHTML = "";
-        document.getElementById("result").innerHTML = "Score : " + score;
-        document.getElementById("next").style.display = "none";
+    if(step>=total){
+        document.getElementById("question").innerHTML="🎉 Terminé !";
+        document.getElementById("choices").innerHTML="";
+        document.getElementById("result").innerHTML="Score final : "+score;
+        document.getElementById("next").style.display="none";
         return;
     }
 
     step++;
     updateProg();
 
-    document.getElementById("result").innerHTML = "";
-    document.getElementById("next").style.display = "none";
+    document.getElementById("result").innerHTML="";
+    document.getElementById("next").style.display="none";
 
-    const fr = frList[Math.floor(Math.random() * frList.length)];
-    const correct = verbs[fr];
+    const fr=frList[Math.floor(Math.random()*frList.length)];
+    const correct=verbs[fr];
 
-    document.getElementById("question").innerHTML = fr;
+    document.getElementById("question").innerHTML=fr;
 
-    let opts = new Set([correct]);
-    while (opts.size < 4) {
-        opts.add(verbs[frList[Math.floor(Math.random() * frList.length)]]);
+    let opts=new Set([correct]);
+    while(opts.size<4){
+        opts.add(verbs[frList[Math.floor(Math.random()*frList.length)]]);
     }
 
-    const final = [...opts].sort(() => Math.random() - 0.5);
+    const final=[...opts].sort(()=>Math.random()-0.5);
 
-    let html = "";
-    final.forEach(ru => {
+    let html="";
+    final.forEach(ru=>{
         html += `
         <div class="choice" onclick="checkAnswer(this,'${ru}','${correct}')">
             <div class="left">
@@ -293,28 +293,28 @@ function startQuiz() {
         </div>`;
     });
 
-    document.getElementById("choices").innerHTML = html;
+    document.getElementById("choices").innerHTML=html;
 }
 
-function checkAnswer(el, choice, correct) {
-    document.querySelectorAll('.choice').forEach(x => x.style.pointerEvents = "none");
+function checkAnswer(el,choice,correct){
+    document.querySelectorAll('.choice').forEach(x=>x.style.pointerEvents="none");
 
     playSound(choice);
 
-    if (choice === correct) {
+    if(choice===correct){
         el.classList.add("correct");
         score++;
-        document.getElementById("score").innerHTML = "Score : " + score;
-        document.getElementById("result").innerHTML = "🟢 Correct !";
+        document.getElementById("score").innerHTML="Score : "+score;
+        document.getElementById("result").innerHTML="🟢 Correct !";
     } else {
         el.classList.add("wrong");
         document.getElementById("result").innerHTML =
-            "❌ Mauvais<br>✔️ " + correct + "<br><small>" + ruPhon[correct] + "</small>";
-        document.getElementById("playCorrect").style.display = "block";
-        document.getElementById("playCorrect").onclick = () => playSound(correct);
+            "❌ Mauvais<br>✔️ "+correct+"<br><small>"+ruPhon[correct]+"</small>";
+        document.getElementById("playCorrect").style.display="block";
+        document.getElementById("playCorrect").onclick = ()=>playSound(correct);
     }
 
-    document.getElementById("next").style.display = "block";
+    document.getElementById("next").style.display="block";
 }
 
 startQuiz();

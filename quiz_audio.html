@@ -18,6 +18,7 @@
         width: 100%;
         max-width: 480px;
         padding: 20px;
+        padding-bottom: 140px; /* espace pour le bouton suivant */
     }
 
     /* TOP BAR */
@@ -34,7 +35,6 @@
         font-weight: 800;
         margin: 0;
         padding: 0;
-        text-align: center;
     }
 
     .homeBtn {
@@ -61,8 +61,8 @@
 
     /* PLAY BUTTON */
     .playBtn {
-        width: 90px;
-        height: 90px;
+        width: 100px;
+        height: 100px;
         margin: 20px auto;
         background: white;
         border-radius: 50%;
@@ -70,17 +70,16 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        font-size: 3em;
+        font-size: 3.2em;
         color: #3b82f6;
         cursor: pointer;
         box-shadow: 0 4px 10px rgba(0,0,0,0.12);
         transition: 0.2s;
         user-select: none;
     }
-
     .playBtn:hover { transform: scale(1.07); }
 
-    /* UI */
+    /* PROGRESS BAR */
     #progress {
         height: 12px;
         width: 100%;
@@ -124,18 +123,26 @@
         font-weight:700;
     }
 
+    /* FIXED NEXT BUTTON */
     #next {
-        margin-top:25px;
-        padding:16px;
-        font-size:1.3em;
-        cursor:pointer;
-        width:100%;
-        border-radius:12px;
-        background:#3b82f6;
-        color:white;
-        border:none;
-        display:none;
-        font-weight:700;
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        max-width: 420px;
+        width: calc(100% - 40px);
+
+        padding: 16px;
+        font-size: 1.3em;
+        border-radius: 14px;
+        background: #3b82f6;
+        color: white;
+        border: none;
+        font-weight: 700;
+
+        display: none;
+        box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+        z-index: 999;
     }
 </style>
 </head>
@@ -152,10 +159,8 @@
 
 <div id="score">Score : 0</div>
 
-<!-- New PLAY BUTTON -->
 <div class="playBtn" onclick="playCurrent()">🔊</div>
 
-<!-- Hidden audio -->
 <audio id="audio"></audio>
 
 <div id="choices"></div>
@@ -164,7 +169,7 @@
 <button id="next" onclick="startQuiz()">⏭️ Suivant</button>
 
 <script>
-// ===== LISTE DES MP3 =====
+// LISTE DES MP3
 const verbs = {
     "dessiner.mp3":"dessiner",
     "courir.mp3":"courir",
@@ -196,13 +201,11 @@ const files = Object.keys(verbs);
 let currentFile = "";
 let score = 0, totalQuestions = 20, index = 0;
 
-// Progress bar
 function updateProgress() {
     document.getElementById("progressBar").style.width =
         (index / totalQuestions * 100) + "%";
 }
 
-// Play button handler
 function playCurrent() {
     if(!currentFile) return;
     const audio = document.getElementById("audio");
@@ -227,7 +230,6 @@ function startQuiz() {
     currentFile = files[Math.floor(Math.random()*files.length)];
     const correct = verbs[currentFile];
 
-    // Generate choices
     let opts = new Set([correct]);
     while(opts.size < 4){
         opts.add(verbs[files[Math.floor(Math.random()*files.length)]]);
